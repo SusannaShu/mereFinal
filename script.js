@@ -44,9 +44,31 @@ function gotSpeech() {
   if (speechRec.resultValue) {
     let input = speechRec.resultString;
     document.getElementById('response').innerHTML = "Robot heard: " + input; // Display what the robot heard
+    generatePoetry(input);
   } else {
     console.log("No result received.");
   }
+}
+
+// Function to fetch poetic content based on the last word spoken
+function generatePoetry(text) {
+  const lastWord = text.split(" ").pop(); // Extract the last word from the input
+  const apiUrl = `https://api.datamuse.com/words?rel_rhy=${lastWord}&max=5`; // Datamuse API to find rhyming words
+
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data.length > 0) {
+        const rhymes = data.map(word => word.word).join(", ");
+        document.getElementById('response').innerHTML += `<br>Poetic rhymes for '${lastWord}': ${rhymes}.`;
+      } else {
+        document.getElementById('response').innerHTML += `<br>No rhymes found for '${lastWord}'.`;
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching poetic content:', error);
+      document.getElementById('response').innerHTML += `<br>Error fetching poetic content.`;
+    });
 }
 
 // Make sure the p5.js setup function is only declared once
